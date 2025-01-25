@@ -143,9 +143,9 @@
                     throw new Error('Failed to fetch response from the server.');
                 }
 
-                // Parse the JSON response
-                const result = await response.json();
-                responseContent.textContent = JSON.stringify(result, null, 2);
+                // Parse plain text response
+                const result = await response.text();
+                responseContent.textContent = result;
 
             } catch (error) {
                 responseContent.textContent = `Error: ${error.message}`;
