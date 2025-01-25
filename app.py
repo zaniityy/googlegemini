@@ -21,7 +21,13 @@ except Exception as e:
     raise RuntimeError(f"Failed to initialize GenAI client: {str(e)}")
 
 # In-memory storage for conversation history
+MAX_HISTORY = 20
 conversation_history = []
+
+def add_to_history(entry):
+    if len(conversation_history) >= MAX_HISTORY:
+        conversation_history.pop(0)  # Remove the oldest entry
+    conversation_history.append(entry)
 
 # Root route
 @app.route('/')
