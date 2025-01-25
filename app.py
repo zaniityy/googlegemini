@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Get the API key from the environment
-GENAI_API_KEY = os.getenv("AIzaSyC9kbpd2iaOOw28ZGuDbPlwx4fnI7XmNHQ")
+GENAI_API_KEY = os.getenv("GENAI_API_KEY")
 if not GENAI_API_KEY:
     raise ValueError("The GENAI_API_KEY environment variable is not set. Please set it in your environment or .env file.")
 
