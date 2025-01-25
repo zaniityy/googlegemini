@@ -3,153 +3,133 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gemini AI Service</title>
+    <title>Gemini AI Assistant</title>
     <style>
-        /* Global styles */
         body {
             margin: 0;
-            font-family: 'Arial', sans-serif;
+            font-family: Arial, sans-serif;
             background: linear-gradient(to bottom right, #1e3c72, #2a5298);
-            color: #fff;
+            color: white;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
             align-items: center;
+            justify-content: center;
             min-height: 100vh;
+            padding: 20px;
         }
 
-        /* Card container */
         .card {
             background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(10px);
             border-radius: 12px;
-            padding: 20px 30px;
+            padding: 20px;
             max-width: 600px;
-            width: 90%;
+            width: 100%;
             box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2);
             text-align: center;
         }
 
-        .card h1 {
-            font-size: 2rem;
-            margin-bottom: 20px;
-        }
-
-        /* Input field */
-        .input-field {
-            width: 100%;
+        input, button {
+            margin: 10px 0;
             padding: 10px;
-            border: none;
-            border-radius: 8px;
             font-size: 1rem;
-            margin-bottom: 20px;
+            border-radius: 8px;
+            border: none;
             outline: none;
+            width: 100%;
         }
 
-        /* Submit button */
-        .button {
+        button {
             background: #4caf50;
-            color: #fff;
-            border: none;
-            border-radius: 8px;
-            padding: 10px 20px;
-            font-size: 1rem;
+            color: white;
             cursor: pointer;
-            transition: background 0.3s ease;
         }
 
-        .button:hover {
+        button:hover {
             background: #45a049;
         }
 
-        /* Response container */
-        .response-container {
+        .conversation-history {
             margin-top: 20px;
             text-align: left;
             background: rgba(255, 255, 255, 0.1);
             padding: 15px;
             border-radius: 8px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-size: 1rem;
         }
 
-        .response-container p {
-            color: #ddd;
-            font-size: 1.1rem;
-        }
-
-        /* Footer */
-        .footer {
-            margin-top: 30px;
-            font-size: 0.8rem;
-            color: #bbb;
-            text-align: right;
-            padding-right: 20px;
-        }
-
-        .footer a {
-            color: #4caf50;
-            text-decoration: none;
-        }
-
-        .footer a:hover {
-            text-decoration: underline;
+        .conversation-history p {
+            margin: 5px 0;
         }
     </style>
 </head>
 <body>
     <div class="card">
-        <h1>Gemini AI Service</h1>
+        <h1>Gemini AI Assistant</h1>
         <form id="apiForm">
-            <input 
-                type="text" 
-                id="prompt" 
-                class="input-field" 
-                placeholder="Enter your prompt here..." 
-                required
-            >
-            <button type="submit" class="button">Generate</button>
+            <input type="text" id="prompt" placeholder="Type your message..." required>
+            <button type="submit">Send</button>
         </form>
-        <div id="response" class="response-container" style="display: none;">
-            <h3>AI Response:</h3>
-            <p id="responseContent"></p>
+        <div id="response" style="margin-top: 10px; font-weight: bold;"></div>
+        <div class="conversation-history" id="conversationHistory">
+            <!-- Conversation history will appear here -->
         </div>
     </div>
 
-    <footer class="footer">
-        <p>Powered by <a href="https://ai.google.dev/" target="_blank">Gemini AI</a></p>
-    </footer>
-
     <script>
-        document.getElementById('apiForm').onsubmit = async (e) => {
-            e.preventDefault();
 
-            // Get the user input
-            const prompt = document.getElementById('prompt').value;
+// Function to remove all asterisks (*) from the text
+function removeAsterisks(text) {
+    return text.replace(/\*/g, '');
+}
 
-            // Display a loading message
-            const responseDiv = document.getElementById('response');
-            const responseContent = document.getElementById('responseContent');
-            responseDiv.style.display = 'block';
-            responseContent.textContent = 'Loading...';
+const form = document.getElementById('apiForm');
+const responseDiv = document.getElementById('response');
+const conversationHistoryDiv = document.getElementById('conversationHistory');
 
-            try {
-                // Send a POST request to the backend
-                const response = await fetch('/api', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ prompt })
-                });
+form.onsubmit = async (e) => {
+    e.preventDefault();
 
-                if (!response.ok) {
-                    throw new Error('Failed to fetch response from the server.');
-                }
+    const prompt = document.getElementById('prompt').value;
+    responseDiv.textContent = 'Loading...';
 
-                // Parse plain text response
-                const result = await response.text();
-                responseContent.textContent = result;
+    try {
+        const response = await fetch('/api', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ prompt })
+        });
 
-            } catch (error) {
-                responseContent.textContent = `Error: ${error.message}`;
-            }
-        };
+        if (!response.ok) {
+            throw new Error('Failed to fetch response from the server.');
+        }
+
+        const result = await response.text();
+        const cleanedResult = removeAsterisks(result); // Remove asterisks from AI response
+
+        responseDiv.textContent = cleanedResult;
+
+        // Update conversation history
+        const userMessage = document.createElement('p');
+        userMessage.textContent = `User: ${removeAsterisks(prompt)}`; // Remove asterisks from user input
+        userMessage.style.color = '#b0e0e6'; // Light blue for user messages
+
+        const aiResponse = document.createElement('p');
+        aiResponse.textContent = `Assistant: ${cleanedResult}`; // Cleaned AI response
+        aiResponse.style.color = '#98fb98'; // Light green for AI responses
+
+        conversationHistoryDiv.appendChild(userMessage);
+        conversationHistoryDiv.appendChild(aiResponse);
+
+        // Clear input field
+        document.getElementById('prompt').value = '';
+    } catch (error) {
+        responseDiv.textContent = `Error: ${error.message}`;
+    }
+};
+
     </script>
 </body>
 </html>
