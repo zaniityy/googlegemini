@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gemini AI Service</title>
+    <style>
+        /* Global styles */
+        body {
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(to bottom right, #1e3c72, #2a5298);
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* Card container */
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 20px 30px;
+            max-width: 600px;
+            width: 90%;
+            box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+
+        .card h1 {
+            font-size: 2rem;
+            margin-bottom: 20px;
+        }
+
+        /* Input field */
+        .input-field {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            margin-bottom: 20px;
+            outline: none;
+        }
+
+        /* Submit button */
+        .button {
+            background: #4caf50;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 20px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .button:hover {
+            background: #45a049;
+        }
+
+        /* Response container */
+        .response-container {
+            margin-top: 20px;
+            text-align: left;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .response-container pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            color: #ddd;
+        }
+
+        /* Footer */
+        .footer {
+            margin-top: 30px;
+            font-size: 0.8rem;
+            color: #bbb;
+            text-align: right;
+            padding-right: 20px;
+        }
+
+        .footer a {
+            color: #4caf50;
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>Gemini AI Service</h1>
+        <form id="apiForm">
+            <input 
+                type="text" 
+                id="prompt" 
+                class="input-field" 
+                placeholder="Enter your prompt here..." 
+                required
+            >
+            <button type="submit" class="button">Generate</button>
+        </form>
+        <div id="response" class="response-container" style="display: none;">
+            <h3>AI Response:</h3>
+            <pre id="responseContent"></pre>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>Powered by <a href="https://ai.google.dev/" target="_blank">Gemini AI</a></p>
+    </footer>
+
+    <script>
+        document.getElementById('apiForm').onsubmit = async (e) => {
+            e.preventDefault();
+
+            // Get the user input
+            const prompt = document.getElementById('prompt').value;
+
+            // Display a loading message
+            const responseDiv = document.getElementById('response');
+            const responseContent = document.getElementById('responseContent');
+            responseDiv.style.display = 'block';
+            responseContent.textContent = 'Loading...';
+
+            try {
+                // Send a POST request to the backend
+                const response = await fetch('/api', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ prompt })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to fetch response from the server.');
+                }
+
+                // Parse the JSON response
+                const result = await response.json();
+                responseContent.textContent = JSON.stringify(result, null, 2);
+
+            } catch (error) {
+                responseContent.textContent = `Error: ${error.message}`;
+            }
+        };
+    </script>
+</body>
+</html>
