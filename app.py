@@ -34,22 +34,27 @@ def api():
         prompt = data.get('prompt')
 
         if not prompt:
-            return jsonify({"error": "No prompt provided"}), 400
+            return "No prompt provided", 400
 
         # Call the AI model
-        config = {"temperature": 0.7, "max_tokens": 100}
+        config = {"temperature": 0.7}
+        print(f"Sending prompt to AI: {prompt}")  # Debug log
         ai_response = client.models.generate_content(
-            model="gemini-2.0",
+            model="gemini-exp-1206",  # Corrected model ID
             contents=prompt,
             config=config
         )
 
-        # Extract and return the AI response
-        response_text = ai_response.candidates[0].content
-        return jsonify({"response": response_text}), 200
+        # Extract the response text
+        response_text = ai_response.candidates[0].content.parts[0].text
+        print(f"AI response: {response_text}")  # Debug log
+
+        # Return the response as plain text
+        return response_text, 200
 
     except Exception as e:
-        return jsonify({"error": f"Server error: {str(e)}"}), 500
+        print(f"Error occurred: {e}")  # Log the error
+        return f"Server error: {str(e)}", 500
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
